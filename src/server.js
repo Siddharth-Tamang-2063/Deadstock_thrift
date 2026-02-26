@@ -19,22 +19,7 @@ const app = express();
 app.use(express.json());
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://192.168.1.82:5173',
-  'http://192.168.1.82:5174',
-  process.env.FRONTEND_URL,
-].filter(Boolean);
-
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS blocked: ${origin}`));
-  },
-  credentials: true,
-}));
+app.use(cors());
 
 // ── MongoDB ───────────────────────────────────────────────────────────────────
 mongoose
