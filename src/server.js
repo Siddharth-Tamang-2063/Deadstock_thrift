@@ -22,10 +22,10 @@ const app = express();
 const allowedOrigins = [
   'https://deadstockthrift.com',
   'https://www.deadstockthrift.com',
+  'https://deadstock-thrift-official.vercel.app', // ← add this
   'http://localhost:5173',
   'http://localhost:3000',
 ];
-
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
