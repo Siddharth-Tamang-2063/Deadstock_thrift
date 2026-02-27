@@ -7,9 +7,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import webpush from 'web-push';
 
-import ordersRoutes from './routes/orders.js';
-import tokenRoutes from './routes/tokens.js';
-import fcmRoutes from './routes/fcm.js';
+import ordersRoutes    from './routes/orders.js';
+import tokenRoutes     from './routes/tokens.js';
+import fcmRoutes       from './routes/fcm.js';
+import contactRoutes   from './routes/contact.js';   // ← ADD THIS
 import subscribeRouter from './subscribe.js';
 import './firebase.js';
 
@@ -38,6 +39,7 @@ console.log('✅ VAPID keys loaded');
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/subscribe', subscribeRouter);
 app.use('/api/orders',    ordersRoutes);
+app.use('/api/contact',   contactRoutes);   // ← ADD THIS
 app.use('/api',           tokenRoutes);
 app.use('/api',           fcmRoutes);
 
