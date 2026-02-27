@@ -24,6 +24,9 @@ const orderSchema = new mongoose.Schema(
     paymentMethod:   { type: String, default: 'cod' },
     message:         String,
     total:           Number,
+    deliveryFee:     { type: Number, default: 0 },
+    brtZone:         { type: String, enum: ['inside', 'outside', null], default: null },
+    txScreenshot:    { type: String, default: null }, // base64 encoded image
     status:          { type: String, default: 'pending' },
     items:           [orderItemSchema],
   },

@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 import Order from '../models/Order.js';
 import webpush from 'web-push';
 import { subscriptions } from '../subscribe.js';
@@ -7,24 +8,40 @@ import FcmToken from '../models/FcmToken.js';
 
 const router = express.Router();
 
+// ── Multer: store screenshot in memory as Buffer ──────────────────────────────
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+});
+
 // ── POST /api/orders ──────────────────────────────────────────────────────────
-router.post('/', async (req, res) => {
+router.post('/', upload.single('txScreenshot'), async (req, res) => {
   try {
+    // FormData sends order fields as JSON string in 'data' field
     const {
       name, email, phone,
       deliveryAddress, city, street,
       paymentMethod, message, items, total,
-    } = req.body;
+      deliveryFee, brtZone,
+    } = JSON.parse(req.body.data);
 
     if (!name || !email || !deliveryAddress || !city || !street || !items?.length) {
       return res.status(400).json({ error: 'Missing required fields or items' });
     }
 
+    // Convert screenshot buffer → base64 string for DB storage
+    const txScreenshot = req.file
+      ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`
+      : null;
+
     const order = new Order({
       orderId: 'ORD-' + Date.now(),
       name, email, phone,
       deliveryAddress, city, street,
-      paymentMethod, message, total, items,
+      paymentMethod, message, total,
+      deliveryFee, brtZone,
+      txScreenshot,
+      items,
     });
 
     await order.save();
@@ -42,7 +59,7 @@ router.post('/', async (req, res) => {
     });
 
     // ── FCM — only send to YOUR device (isAdmin: true) ────────────────────────
-    const tokenDocs = await FcmToken.find({ isAdmin: true }); // ✅ only your phone
+    const tokenDocs = await FcmToken.find({ isAdmin: true });
     const tokens = tokenDocs.map((t) => t.token);
 
     if (tokens.length > 0) {
